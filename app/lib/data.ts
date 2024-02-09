@@ -7,6 +7,8 @@ import {
   LatestInvoiceRaw,
   User,
   Revenue,
+  NavigationItem,
+  Page,
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -235,6 +237,40 @@ export async function getUser(email: string) {
   try {
     const user = await sql`SELECT * FROM users WHERE email=${email}`;
     return user.rows[0] as User;
+  } catch (error) {
+    console.error('Failed to fetch user:', error);
+    throw new Error('Failed to fetch user.');
+  }
+}
+
+export async function getNavigation(key: string) {
+  noStore();
+  try {
+    const response = await sql<NavigationItem>`
+    SELECT ni."Title", p."Slug"
+    FROM "NavigationItems" as ni
+    INNER JOIN "Navigations" as n ON n."Id" = ni."NavigationId"
+    INNER JOIN "Pages" as p ON p."Id" = ni."PageId"
+    WHERE n."Key" = ${key}
+    ORDER BY ni."ViewOrder"
+    `;
+    return response.rows;
+  } catch (error) {
+    console.error('Failed to fetch user:', error);
+    throw new Error('Failed to fetch user.');
+  }
+}
+
+export async function getPage(slug: string) {
+  noStore();
+  try {
+    const response = await sql<Page>`
+    SELECT p."Data", pt."ComponentKey"
+    FROM "Pages" as p
+    INNER JOIN "PageTemplates" as pt ON pt."Id" = p."TemplateId"
+    WHERE p."Slug"=${slug}
+    `;
+    return response.rows[0];
   } catch (error) {
     console.error('Failed to fetch user:', error);
     throw new Error('Failed to fetch user.');

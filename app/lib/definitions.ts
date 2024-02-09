@@ -86,3 +86,13 @@ export type InvoiceForm = {
   amount: number;
   status: 'pending' | 'paid';
 };
+
+export type NavigationItem = {
+  Title: string;
+  Slug: string;
+};
+
+export type Page = {
+  ComponentKey: string;
+  Data: JSON;
+};
